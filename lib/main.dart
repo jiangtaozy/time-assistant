@@ -6,8 +6,12 @@
 
 import 'package:flutter/material.dart';
 import 'home.dart';
+import 'db.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  init();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
