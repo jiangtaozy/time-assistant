@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db.dart';
+import 'time-record-item.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -61,59 +62,13 @@ class HomeState extends State<Home> {
     getTimeRecord();
   }
 
-  handleTimeRecordLongPressed(context, recordId) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('删除这条记录吗？'),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('取消'),
-            ),
-            FlatButton(
-              onPressed: () {
-                deleteRecord(recordId);
-                Navigator.pop(context);
-              },
-              child: Text('确定'),
-            ),
-          ],
-        );
-      }
-    );
-  }
-
-  deleteRecord(recordId) async {
-    final db = await database();
-    await db.delete(
-      'time_record',
-      where: 'id = ?',
-      whereArgs: [recordId],
-    );
-    getTimeRecord();
-  }
-
   @override
   Widget build(BuildContext context) {
     var records = timeRecord.map((record) {
-      var recordId = record['id'];
-      var time = DateTime.parse(record['time']);
-      var timeString = '${time.hour}:${time.minute}';
-      return Card(
-        child: InkWell(
-          onTap: () {
-          },
-          onLongPress: () {
-            handleTimeRecordLongPressed(context, recordId);
-          },
-          child: ListTile(
-            title: Text(timeString + ' ' + record['name'])
-          ),
-        ),
+      return TimeRecordItem(
+        record: record,
+        getTimeRecord: getTimeRecord,
+        timeCategory: timeCategory,
       );
     }).toList();
     var buttons = timeCategory.map((category) {
