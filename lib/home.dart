@@ -20,12 +20,22 @@ class HomeState extends State<Home> {
 
   var timeCategory = [];
   var timeRecord = [];
+  var selectedDate;
 
   @override
   void initState() {
     super.initState();
     getTimeCategory();
     getTimeRecord();
+    final now = DateTime.now();
+    final today = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
+    setState(() {
+      selectedDate = today;
+    });
   }
 
   getTimeCategory() async {
@@ -43,6 +53,9 @@ class HomeState extends State<Home> {
       FROM time_record
       LEFT JOIN time_category
       on time_record.categoryId = time_category.id
+      WHERE DATETIME(time)
+      BETWEEN DATETIME('${selectedDate}')
+      AND DATETIME('${selectedDate}', '+1 day')
     ''');
     setState(() {
       timeRecord = records;
@@ -59,6 +72,19 @@ class HomeState extends State<Home> {
         'categoryId': timeCategoryId,
       }
     );
+    getTimeRecord();
+  }
+
+  handleDatePressed(context) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2019),
+      lastDate: DateTime(2021),
+    );
+    setState(() {
+      selectedDate = date;
+    });
     getTimeRecord();
   }
 
@@ -79,12 +105,19 @@ class HomeState extends State<Home> {
         child: Text(category['name']),
       );
     }).toList();
+    final selectedDateString = '${selectedDate.month}.${selectedDate.day}';
     return Scaffold(
       appBar: AppBar(
         title: Text('时间助手'),
       ),
       body: Column(
         children: <Widget>[
+          RaisedButton(
+            onPressed: () {
+              handleDatePressed(context);
+            },
+            child: Text(selectedDateString),
+          ),
           Expanded(
             child: ListView(
               children: records,
