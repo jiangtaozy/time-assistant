@@ -35,13 +35,25 @@ class TimeRecordItemState extends State<TimeRecordItem> {
   @override
   initState() {
     super.initState();
+    init();
+  }
+
+  init() {
+    final record = widget.record;
+    final time = DateTime.parse(record['time']);
     setState(() {
-      final record = widget.record;
-      final time = DateTime.parse(record['time']);
       recordTime = time;
       recordContent = record['content'];
       recordCategoryId = record['categoryId'];
     });
+  }
+
+  @override
+  didUpdateWidget(TimeRecordItem oldWidget) {
+    // init not run after select date
+    if(oldWidget.record['id'] != widget.record['id']) {
+      init();
+    }
   }
 
   updateRecordTime(time) {
@@ -96,6 +108,7 @@ class TimeRecordItemState extends State<TimeRecordItem> {
 
   handleTimeRecordPressed(context) async {
     final record = widget.record;
+    final time = DateTime.parse(record['time']);
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -104,13 +117,13 @@ class TimeRecordItemState extends State<TimeRecordItem> {
           title: Text('修改记录'),
           children: <Widget>[
             TimeRecordItemTimePicker(
-              recordTime: recordTime,
+              recordTime: time,
               updateRecordTime: updateRecordTime,
             ),
             Container(
-              margin: EdgeInsets.only(left: 10),
+              margin: EdgeInsets.only(left: 10, right: 20),
               child: TextFormField(
-                initialValue: recordContent,
+                initialValue: record['content'],
                 decoration: InputDecoration(
                   icon: Icon(Icons.code),
                   hintText: '内容',
@@ -175,7 +188,8 @@ class TimeRecordItemState extends State<TimeRecordItem> {
   Widget build(BuildContext context) {
     final record = widget.record;
     var time = DateTime.parse(record['time']);
-    var timeString = '${time.hour}:${time.minute}';
+    var minute = time.minute.toString().padLeft(2, '0');
+    var timeString = '${time.hour}:${minute}';
     var title = timeString;
     if(record['name'] != null) {
       title = title + ' ' + record['name'];

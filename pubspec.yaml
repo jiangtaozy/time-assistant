@@ -26,6 +26,7 @@ dependencies:
 
   sqflite:
   path:
+  charts_flutter:
 
 dev_dependencies:
   flutter_test:

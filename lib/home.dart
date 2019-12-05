@@ -10,6 +10,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db.dart';
 import 'time-record-item.dart';
+import 'time-record-pie-chart.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class HomeState extends State<Home> {
 
   var timeCategory = [];
   var timeRecord = [];
+  var lastDayTimeRecord = [];
   var selectedDate;
 
   @override
@@ -57,8 +59,18 @@ class HomeState extends State<Home> {
       BETWEEN DATETIME('${selectedDate}')
       AND DATETIME('${selectedDate}', '+1 day')
     ''');
+    final lastDayRecords = await db.rawQuery('''
+      SELECT time_record.*, time_category.name
+      FROM time_record
+      LEFT JOIN time_category
+      on time_record.categoryId = time_category.id
+      WHERE DATETIME(time)
+      BETWEEN DATETIME('${selectedDate}', '-1 day')
+      AND DATETIME('${selectedDate}')
+    ''');
     setState(() {
       timeRecord = records;
+      lastDayTimeRecord = lastDayRecords;
     });
   }
 
@@ -112,6 +124,14 @@ class HomeState extends State<Home> {
       ),
       body: Column(
         children: <Widget>[
+          SizedBox(
+            height: 250.0,
+            child: TimeRecordPieChart(
+              timeRecord: timeRecord,
+              timeCategory: timeCategory,
+              lastDayTimeRecord: lastDayTimeRecord,
+            ),
+          ),
           RaisedButton(
             onPressed: () {
               handleDatePressed(context);
