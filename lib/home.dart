@@ -23,6 +23,13 @@ class HomeState extends State<Home> {
   var timeRecord = [];
   var lastDayTimeRecord = [];
   var selectedDate;
+  ScrollController timeRecordListViewController = new ScrollController();
+
+  @override
+  void dispose() {
+    timeRecordListViewController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -94,7 +101,10 @@ class HomeState extends State<Home> {
         'categoryId': timeCategoryId,
       }
     );
-    getTimeRecord();
+    await getTimeRecord();
+    Timer(Duration(milliseconds: 100), () {
+      scrollTimeRecordListViewToBottom();
+    });
   }
 
   handleDatePressed(context) async {
@@ -104,10 +114,20 @@ class HomeState extends State<Home> {
       firstDate: DateTime(2019),
       lastDate: DateTime(2021),
     );
-    setState(() {
-      selectedDate = date;
-    });
-    getTimeRecord();
+    if(date != null) {
+      setState(() {
+        selectedDate = date;
+      });
+      getTimeRecord();
+    }
+  }
+
+  scrollTimeRecordListViewToBottom() {
+    timeRecordListViewController.animateTo(
+      timeRecordListViewController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -151,6 +171,7 @@ class HomeState extends State<Home> {
           Expanded(
             child: ListView(
               children: records,
+              controller: timeRecordListViewController,
             ),
           ),
           Wrap(
