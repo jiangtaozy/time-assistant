@@ -76,11 +76,21 @@ class HomeState extends State<Home> {
 
   handleTimeCategoryButtonPressed(timeCategoryId) async {
     final now = new DateTime.now();
+    final time = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      now.hour,
+      now.minute,
+      now.second,
+      now.millisecond,
+      now.microsecond,
+    );
     final db = await database();
     await db.insert(
       'time_record',
       {
-        'time': now.toIso8601String(),
+        'time': time.toIso8601String(),
         'categoryId': timeCategoryId,
       }
     );
