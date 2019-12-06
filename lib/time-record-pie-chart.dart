@@ -127,13 +127,26 @@ class TimeRecordPieChartState extends State<TimeRecordPieChart> {
         timeCategoryList[i]['time'] = 0;
       }
     }
+    if(timeRecord.length == 0) {
+      timeCategoryList.add({
+        'id': 0,
+        'name': '未用',
+        'duration': Duration(hours: 24),
+        'time': 1,
+      });
+    }
     var seriesList = [
       new charts.Series(
         id: 'Sales',
         domainFn: (record, _) => record['name'],
         measureFn: (record, _) => record['time'],
         data: timeCategoryList,
-        labelAccessorFn: (row, _) => row['name']
+        labelAccessorFn: (row, _) {
+          final duration = row['duration'] ?? Duration();
+          final hour = duration.inHours.toString().padLeft(2, '0');
+          final minute = (duration.inMinutes % 60).toString().padLeft(2, '0');
+          return "${row['name']} $hour:$minute";
+        }
       )
     ];
     return new charts.PieChart(seriesList,
