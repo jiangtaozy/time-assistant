@@ -6,10 +6,8 @@
 
 import 'package:flutter/material.dart';
 import 'home.dart';
-import 'db.dart';
 
 void main() {
-  init();
   runApp(MyApp());
 }
 

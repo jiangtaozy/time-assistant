@@ -48,6 +48,7 @@ class TimeRecordPieChartState extends State<TimeRecordPieChart> {
       timeCategoryList.add({
         'id': widget.timeCategory[i]['id'],
         'name': widget.timeCategory[i]['name'],
+        'color': widget.timeCategory[i]['color'],
       });
     }
     var timeDurationData = [];
@@ -94,6 +95,7 @@ class TimeRecordPieChartState extends State<TimeRecordPieChart> {
           timeCategoryList.add({
             'id': 0,
             'name': '未用',
+            'color': '0xfff2f1f6',
           });
         } else {
           duration = nextDay.difference(time);
@@ -133,6 +135,7 @@ class TimeRecordPieChartState extends State<TimeRecordPieChart> {
         'name': '未用',
         'duration': Duration(hours: 24),
         'time': 1,
+        'color': '0xfff2f1f6',
       });
     }
     var seriesList = [
@@ -140,6 +143,7 @@ class TimeRecordPieChartState extends State<TimeRecordPieChart> {
         id: 'Sales',
         domainFn: (record, _) => record['name'],
         measureFn: (record, _) => record['time'],
+        colorFn: (record, _) => charts.ColorUtil.fromDartColor(Color(int.parse(record['color']))),
         data: timeCategoryList,
         labelAccessorFn: (row, _) {
           final duration = row['duration'] ?? Duration();

@@ -141,6 +141,7 @@ class HomeState extends State<Home> {
     }).toList();
     var buttons = timeCategory.map((category) {
       return RaisedButton(
+        color: Color(int.parse(category['color'])),
         onPressed: () {
           handleTimeCategoryButtonPressed(category['id']);
         },
@@ -155,18 +156,32 @@ class HomeState extends State<Home> {
       body: Column(
         children: <Widget>[
           SizedBox(
-            height: 250.0,
+            height: 240.0,
             child: TimeRecordPieChart(
               timeRecord: timeRecord,
               timeCategory: timeCategory,
               lastDayTimeRecord: lastDayTimeRecord,
             ),
           ),
-          RaisedButton(
-            onPressed: () {
-              handleDatePressed(context);
-            },
-            child: Text(selectedDateString),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(right: 20),
+                child: RaisedButton(
+                  color: Color(0xffc4e0e1),
+                  onPressed: () {
+                    handleDatePressed(context);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.date_range),
+                      Text(selectedDateString),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: ListView(
