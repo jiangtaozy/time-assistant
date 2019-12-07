@@ -5,10 +5,10 @@
  */
 
 import 'package:flutter/material.dart';
-import 'db.dart';
+import '../../db.dart';
 import 'time-record-item-category-dropdown-menu.dart';
 import 'time-record-item-time-picker.dart';
-import 'colors.dart';
+import '../../colors.dart';
 
 class TimeRecordItem extends StatefulWidget {
 
