@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'record/record.dart';
+import 'analysis/analysis.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,13 +15,41 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
 
+  int selectedIndex = 0;
+  final widgetOptions = [
+    Record(),
+    Analysis(),
+  ];
+
+  void onItemTapped(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('小福时间助手'),
       ),
-      body: Record(),
+      body: widgetOptions.elementAt(selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit),
+            title: Text('记录'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.show_chart),
+            title: Text('分析'),
+          ),
+        ],
+        currentIndex: selectedIndex,
+        fixedColor: Colors.blue,
+        onTap: onItemTapped,
+        type: BottomNavigationBarType.fixed,
+      ),
     );
   }
 }
