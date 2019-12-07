@@ -11,6 +11,7 @@ import 'package:sqflite/sqflite.dart';
 import 'db.dart';
 import 'time-record-item.dart';
 import 'time-record-pie-chart.dart';
+import 'colors.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -169,7 +170,7 @@ class HomeState extends State<Home> {
               Container(
                 margin: EdgeInsets.only(right: 20),
                 child: RaisedButton(
-                  color: Color(0xffc4e0e1),
+                  color: Color(AdmiraltyBlue),
                   onPressed: () {
                     handleDatePressed(context);
                   },

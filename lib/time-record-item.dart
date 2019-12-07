@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'db.dart';
 import 'time-record-item-category-dropdown-menu.dart';
 import 'time-record-item-time-picker.dart';
+import 'colors.dart';
 
 class TimeRecordItem extends StatefulWidget {
 
@@ -123,6 +124,7 @@ class TimeRecordItemState extends State<TimeRecordItem> {
             Container(
               margin: EdgeInsets.only(left: 10, right: 20),
               child: TextFormField(
+                autofocus: true,
                 initialValue: record['content'],
                 decoration: InputDecoration(
                   icon: Icon(Icons.code),
@@ -141,12 +143,14 @@ class TimeRecordItemState extends State<TimeRecordItem> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 RaisedButton(
+                  color: Color(YauMaTeiGray),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                   child: Text('取消'),
                 ),
                 RaisedButton(
+                  color: Color(AdmiraltyBlue),
                   onPressed: () {
                     handleEditRecordSubmitButtonPressed(context);
                   },

@@ -61,7 +61,9 @@ class TimeRecordItemTimePickerState extends State<TimeRecordItemTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    var timeString = '${recordTime.hour}:${recordTime.minute}';
+    final hour = recordTime.hour.toString().padLeft(2, '0');
+    final minute = recordTime.minute.toString().padLeft(2, '0');
+    var timeString = '${hour}:${minute}';
     return InkWell(
       onTap: () {
         handleEditTimePressed(context);
