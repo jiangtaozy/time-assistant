@@ -66,6 +66,7 @@ class RecordState extends State<Record> {
       WHERE DATETIME(time)
       BETWEEN DATETIME('${selectedDate}')
       AND DATETIME('${selectedDate}', '+1 day')
+      ORDER BY datetime(time_record.time) ASC
     ''');
     final lastDayRecords = await db.rawQuery('''
       SELECT time_record.*, time_category.name
@@ -75,6 +76,7 @@ class RecordState extends State<Record> {
       WHERE DATETIME(time)
       BETWEEN DATETIME('${selectedDate}', '-1 day')
       AND DATETIME('${selectedDate}')
+      ORDER BY datetime(time_record.time) ASC
     ''');
     setState(() {
       timeRecord = records;
