@@ -201,6 +201,12 @@ class TimeRecordItemState extends State<TimeRecordItem> {
     if(record['content'] != null) {
       title = title + ' ' + record['content'];
     }
+    if(record['duration'] != null) {
+      final duration = record['duration'] ?? Duration();
+      final hour = duration.inHours.toString().padLeft(2, '0');
+      final minute = (duration.inMinutes % 60).toString().padLeft(2, '0');
+      title = '$title $hour:$minute';
+    }
     return Card(
       child: InkWell(
         onTap: () {

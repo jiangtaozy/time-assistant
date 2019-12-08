@@ -78,8 +78,39 @@ class RecordState extends State<Record> {
       AND DATETIME('${selectedDate}')
       ORDER BY datetime(time_record.time) ASC
     ''');
+    final timeRecordList = [];
+    for(var i = 0; i < records.length; i++) {
+      final record = records[i];
+      final now = DateTime.now();
+      var duration;
+      final time = DateTime.parse(record['time']);
+      if(i != records.length - 1) {
+        final nextRecord = records[i + 1];
+        final nextTime = DateTime.parse(nextRecord['time']);
+        duration = nextTime.difference(time);
+      } else if (time.year == now.year &&
+        time.month == now.month &&
+        time.day == now.day) {
+        duration = now.difference(time);
+      } else {
+        final nextDay = DateTime(
+          time.year,
+          time.month,
+          time.day,
+        );
+        duration = nextDay.difference(time);
+      }
+      timeRecordList.add({
+        'id': record['id'],
+        'time': record['time'],
+        'categoryId': record['categoryId'],
+        'content': record['content'],
+        'name': record['name'],
+        'duration': duration,
+      });
+    }
     setState(() {
-      timeRecord = records;
+      timeRecord = timeRecordList;
       lastDayTimeRecord = lastDayRecords;
     });
   }
