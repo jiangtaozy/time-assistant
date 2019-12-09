@@ -14,6 +14,7 @@ import 'time-record-pie-chart.dart';
 import '../colors.dart';
 import 'time-record-item/time-record-item-time-picker.dart';
 import 'time-record-item/time-record-item-category-dropdown-menu.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 class Record extends StatefulWidget {
   @override
@@ -29,6 +30,7 @@ class RecordState extends State<Record> {
   var recordTime;
   var recordContent;
   var recordCategoryId;
+  int pieSwiperIndex = 0;
   ScrollController timeRecordListViewController = new ScrollController();
 
   updateRecordTime(time) {
@@ -267,33 +269,53 @@ class RecordState extends State<Record> {
     final selectedDateString = '${selectedDate.month}.${selectedDate.day}';
     return Column(
       children: <Widget>[
-        SizedBox(
-          height: 240.0,
-          child: TimeRecordPieChart(
-            timeRecord: timeRecord,
-            timeCategory: timeCategory,
-            lastDayTimeRecord: lastDayTimeRecord,
-          ),
-        ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(right: 20),
+              margin: EdgeInsets.only(left: 10),
               child: RaisedButton(
-                color: Color(AdmiraltyBlue),
+                color: Color(YauMaTeiGray),
                 onPressed: () {
                   handleDatePressed(context);
                 },
                 child: Row(
                   children: <Widget>[
                     Icon(Icons.date_range),
-                    Text(selectedDateString),
+                    Container(
+                      margin: EdgeInsets.only(left: 5),
+                      child: Text(selectedDateString),
+                    ),
                   ],
                 ),
               ),
             ),
           ],
+        ),
+        SizedBox(
+          height: 240.0,
+          child: Swiper(
+            itemBuilder: (BuildContext context, int index) {
+              return TimeRecordPieChart(
+                timeRecord: timeRecord,
+                timeCategory: timeCategory,
+                lastDayTimeRecord: lastDayTimeRecord,
+              );
+            },
+            itemCount: 3,
+            onIndexChanged: (int index) {
+              bool isSwiperForward = index - pieSwiperIndex == 1 ||
+                index - pieSwiperIndex == -2;
+              DateTime newDate = selectedDate.add(
+                Duration(days: isSwiperForward ? 1 : -1)
+              );
+              setState(() {
+                pieSwiperIndex = index;
+                selectedDate = newDate;
+              });
+              getTimeRecord();
+            },
+          ),
         ),
         Expanded(
           child: ListView(
