@@ -199,6 +199,46 @@ class AnalysisState extends State<Analysis> {
         ),
       );
     }).toList();
+    final List<charts.Series<dynamic, DateTime>> multiLineSeriesList = timeCategoryDuration.map((categoryDuration) {
+      return charts.Series<dynamic, DateTime>(
+        id: categoryDuration['categoryName'].toString(),
+        colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
+        domainFn: (record, _) => record['dayTime'],
+        measureFn: (record, _) {
+          final hours = record['duration'].inHours;
+          final minutes = record['duration'].inMinutes % 60;
+          final duration = hours + minutes / 60;
+          return duration;
+        },
+        data: categoryDuration['durationList'],
+      );
+    }).toList();
+    Widget multiLineSeriesChart = SizedBox(
+      height: 240,
+      child: Container(
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+        child: multiLineSeriesList.length == 0 ? null : charts.TimeSeriesChart(
+          multiLineSeriesList,
+          animate: true,
+          behaviors: [
+            charts.ChartTitle(
+              '时长',
+              behaviorPosition: charts.BehaviorPosition.top,
+              titleOutsideJustification: charts.OutsideJustification.start,
+              innerPadding: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+    seriesChartList.insert(0, multiLineSeriesChart);
     return ListView(
       children: seriesChartList,
     );
