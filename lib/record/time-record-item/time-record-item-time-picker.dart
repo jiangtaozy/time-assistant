@@ -40,6 +40,14 @@ class TimeRecordItemTimePickerState extends State<TimeRecordItemTimePicker> {
         hour: recordTime.hour,
         minute: recordTime.minute,
       ),
+      builder: (BuildContext context, Widget child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: true,
+          ),
+          child: child,
+        );
+      },
     );
     if(selectedTime != null) {
       var newTime = DateTime(

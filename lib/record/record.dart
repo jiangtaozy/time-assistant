@@ -12,6 +12,8 @@ import '../db.dart';
 import 'time-record-item/time-record-item.dart';
 import 'time-record-pie-chart.dart';
 import '../colors.dart';
+import 'time-record-item/time-record-item-time-picker.dart';
+import 'time-record-item/time-record-item-category-dropdown-menu.dart';
 
 class Record extends StatefulWidget {
   @override
@@ -24,7 +26,28 @@ class RecordState extends State<Record> {
   var timeRecord = [];
   var lastDayTimeRecord = [];
   var selectedDate;
+  var recordTime;
+  var recordContent;
+  var recordCategoryId;
   ScrollController timeRecordListViewController = new ScrollController();
+
+  updateRecordTime(time) {
+    setState(() {
+      recordTime = time;
+    });
+  }
+
+  updateRecordCategoryId(categoryId) {
+    setState(() {
+      recordCategoryId = categoryId;
+    });
+  }
+
+  handleRecordContentChanged(value) {
+    setState(() {
+      recordContent = value;
+    });
+  }
 
   @override
   void dispose() {
@@ -96,7 +119,7 @@ class RecordState extends State<Record> {
         final nextDay = DateTime(
           time.year,
           time.month,
-          time.day,
+          time.day + 1,
         );
         duration = nextDay.difference(time);
       }
@@ -115,7 +138,24 @@ class RecordState extends State<Record> {
     });
   }
 
-  handleTimeCategoryButtonPressed(timeCategoryId) async {
+  handleRecordTimeSubmitButtonPressed(context) async {
+    final db = await database();
+    await db.insert(
+      'time_record',
+      {
+        'time': recordTime.toIso8601String(),
+        'categoryId': recordCategoryId,
+        'content': recordContent,
+      }
+    );
+    await getTimeRecord();
+    Timer(Duration(milliseconds: 100), () {
+      scrollTimeRecordListViewToBottom();
+    });
+    Navigator.of(context).pop();
+  }
+
+  handleTimeCategoryButtonPressed(context, timeCategoryId) async {
     final now = new DateTime.now();
     final time = DateTime(
       selectedDate.year,
@@ -127,18 +167,60 @@ class RecordState extends State<Record> {
       now.millisecond,
       now.microsecond,
     );
-    final db = await database();
-    await db.insert(
-      'time_record',
-      {
-        'time': time.toIso8601String(),
-        'categoryId': timeCategoryId,
+    updateRecordTime(time);
+    updateRecordCategoryId(timeCategoryId);
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('修改记录'),
+          children: <Widget>[
+            TimeRecordItemTimePicker(
+              recordTime: time,
+              updateRecordTime: updateRecordTime,
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 10, right: 20),
+              child: TextFormField(
+                autofocus: true,
+                initialValue: '',
+                decoration: InputDecoration(
+                  icon: Icon(Icons.code),
+                  hintText: '内容',
+                ),
+                maxLines: null,
+                onChanged: handleRecordContentChanged,
+              ),
+            ),
+            TimeRecordItemCategoryDropdownMenu(
+              timeCategory: timeCategory,
+              timeRecordCategoryId: timeCategoryId,
+              updateRecordCategoryId: updateRecordCategoryId,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                RaisedButton(
+                  color: Color(YauMaTeiGray),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('取消'),
+                ),
+                RaisedButton(
+                  color: Color(AdmiraltyBlue),
+                  onPressed: () {
+                    handleRecordTimeSubmitButtonPressed(context);
+                  },
+                  child: Text('确定'),
+                ),
+              ],
+            ),
+          ],
+        );
       }
     );
-    await getTimeRecord();
-    Timer(Duration(milliseconds: 100), () {
-      scrollTimeRecordListViewToBottom();
-    });
   }
 
   handleDatePressed(context) async {
@@ -177,7 +259,7 @@ class RecordState extends State<Record> {
       return RaisedButton(
         color: Color(int.parse(category['color'])),
         onPressed: () {
-          handleTimeCategoryButtonPressed(category['id']);
+          handleTimeCategoryButtonPressed(context, category['id']);
         },
         child: Text(category['name']),
       );
