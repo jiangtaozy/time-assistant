@@ -17,13 +17,25 @@ class Analysis extends StatefulWidget {
 class AnalysisState extends State<Analysis> {
 
   var timeCategory = [];
-  var timeRecord = [];
+  var selectedDuration = {};
+  var seriesList = [];
+  var multiLineSeriesList = [];
 
   @override
   void initState() {
     super.initState();
-    getTimeCategory();
-    getTimeRecord();
+    init();
+  }
+  void init() async {
+    await getTimeCategory();
+    final records = await getTimeRecord();
+    final timeCategoryDuration = getTimeCategoryDuration(records);
+    final series = getSeriesList(timeCategoryDuration);
+    final List<charts.Series<dynamic, DateTime>> multiLineSeries = getMultiLineSeriesList(timeCategoryDuration);
+    setState(() {
+      seriesList = series;
+      multiLineSeriesList = multiLineSeries;
+    });
   }
 
   getTimeCategory() async {
@@ -41,13 +53,10 @@ class AnalysisState extends State<Analysis> {
       FROM time_record
       ORDER BY datetime(time_record.time) ASC
     ''');
-    setState(() {
-      timeRecord = records;
-    });
+    return records;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  getTimeCategoryDuration(timeRecord) {
     var now = DateTime.now();
     var timeRecordDuration = [];
     // 每条记录时长
@@ -158,8 +167,12 @@ class AnalysisState extends State<Analysis> {
         }
       }
     }
-    final seriesChartList = timeCategoryDuration.map((categoryDuration) {
-      final seriesList = [
+    return timeCategoryDuration;
+  }
+
+  getSeriesList(timeCategoryDuration) {
+    final seriesList = timeCategoryDuration.map((categoryDuration) {
+      final series = [
         charts.Series<dynamic, DateTime>(
           id: categoryDuration['categoryId'].toString(),
           colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
@@ -173,33 +186,17 @@ class AnalysisState extends State<Analysis> {
           data: categoryDuration['durationList'],
         ),
       ];
-      return SizedBox(
-        height: 240,
-        child: Container(
-          margin: EdgeInsets.all(10),
-          padding: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(
-              Radius.circular(10),
-            ),
-          ),
-          child: charts.TimeSeriesChart(
-            seriesList,
-            animate: true,
-            behaviors: [
-              charts.ChartTitle(
-                categoryDuration['categoryName'],
-                behaviorPosition: charts.BehaviorPosition.top,
-                titleOutsideJustification: charts.OutsideJustification.start,
-                innerPadding: 18,
-              ),
-            ],
-          ),
-        ),
-      );
+      return {
+        'series': series,
+        'categoryId': categoryDuration['categoryId'],
+        'categoryName': categoryDuration['categoryName'],
+      };
     }).toList();
-    final List<charts.Series<dynamic, DateTime>> multiLineSeriesList = timeCategoryDuration.map((categoryDuration) {
+    return seriesList;
+  }
+
+  getMultiLineSeriesList(timeCategoryDuration) {
+    List<charts.Series<dynamic, DateTime>> multiLineSeriesList = timeCategoryDuration.map((categoryDuration) {
       return charts.Series<dynamic, DateTime>(
         id: categoryDuration['categoryName'].toString(),
         colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
@@ -211,6 +208,70 @@ class AnalysisState extends State<Analysis> {
           return duration;
         },
         data: categoryDuration['durationList'],
+      );
+    }).toList().cast<charts.Series<dynamic, DateTime>>();
+    return multiLineSeriesList;
+  }
+
+  onSelectionChanged(charts.SelectionModel model) {
+    final selectedDatum = model.selectedDatum;
+    if(selectedDatum.isNotEmpty) {
+      final categoryId = selectedDatum.first.series.id;
+      final duration = selectedDatum.first.datum['duration'];
+      setState(() {
+        selectedDuration[int.parse(categoryId)] = duration;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final seriesChartList = seriesList.map((seriesList) {
+      final selectedTimeDuration = selectedDuration[seriesList['categoryId']];
+      var selectedTimeDurationString = '';
+      if(selectedTimeDuration != null) {
+        final hours = selectedTimeDuration.inHours;
+        final minutes = (selectedTimeDuration.inMinutes % 60).toString().padLeft(2, '0');
+        selectedTimeDurationString = '$hours:$minutes';
+      }
+      return SizedBox(
+        height: 240,
+        child: Stack(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
+              child: charts.TimeSeriesChart(
+                seriesList['series'],
+                animate: true,
+                behaviors: [
+                  charts.ChartTitle(
+                    seriesList['categoryName'],
+                    behaviorPosition: charts.BehaviorPosition.top,
+                    titleOutsideJustification: charts.OutsideJustification.start,
+                    innerPadding: 18,
+                  ),
+                ],
+                selectionModels: [
+                  charts.SelectionModelConfig(
+                    type: charts.SelectionModelType.info,
+                    changedListener: onSelectionChanged,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 70, top: 29),
+              child: Text(selectedTimeDurationString),
+            ),
+          ],
+        ),
       );
     }).toList();
     Widget multiLineSeriesChart = SizedBox(
