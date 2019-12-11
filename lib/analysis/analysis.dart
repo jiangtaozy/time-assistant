@@ -237,6 +237,7 @@ class AnalysisState extends State<Analysis> {
       return SizedBox(
         height: 240,
         child: Stack(
+          alignment: AlignmentDirectional.topCenter,
           children: <Widget>[
             Container(
               margin: EdgeInsets.all(10),
@@ -267,7 +268,7 @@ class AnalysisState extends State<Analysis> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(left: 70, top: 29),
+              margin: EdgeInsets.only(top: 25),
               child: Text(selectedTimeDurationString),
             ),
           ],
