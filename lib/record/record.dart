@@ -151,7 +151,7 @@ class RecordState extends State<Record> {
       }
     );
     await getTimeRecord();
-    Timer(Duration(milliseconds: 100), () {
+    Timer(Duration(milliseconds: 400), () {
       scrollTimeRecordListViewToBottom();
     });
     Navigator.of(context).pop();
