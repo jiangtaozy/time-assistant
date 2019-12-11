@@ -158,6 +158,9 @@ class RecordState extends State<Record> {
   }
 
   handleTimeCategoryButtonPressed(context, timeCategoryId) async {
+    setState(() {
+      recordContent = '';
+    });
     final now = new DateTime.now();
     final time = DateTime(
       selectedDate.year,
