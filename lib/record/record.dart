@@ -31,6 +31,7 @@ class RecordState extends State<Record> {
   var recordContent;
   var recordCategoryId;
   int pieSwiperIndex = 0;
+  Timer refreshRecordEveryMinuteTimer;
   ScrollController timeRecordListViewController = new ScrollController();
 
   updateRecordTime(time) {
@@ -54,6 +55,7 @@ class RecordState extends State<Record> {
   @override
   void dispose() {
     timeRecordListViewController.dispose();
+    refreshRecordEveryMinuteTimer.cancel();
     super.dispose();
   }
 
@@ -62,6 +64,7 @@ class RecordState extends State<Record> {
     super.initState();
     getTimeCategory();
     getTimeRecord();
+    setRefreshRecordEveryMinuteTimer();
     final now = DateTime.now();
     final today = DateTime(
       now.year,
@@ -70,6 +73,12 @@ class RecordState extends State<Record> {
     );
     setState(() {
       selectedDate = today;
+    });
+  }
+
+  setRefreshRecordEveryMinuteTimer() {
+    refreshRecordEveryMinuteTimer = Timer(Duration(minutes: 1), () {
+      getTimeRecord();
     });
   }
 
@@ -179,7 +188,7 @@ class RecordState extends State<Record> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: Text('修改记录'),
+          title: Text('记录时间'),
           children: <Widget>[
             TimeRecordItemTimePicker(
               recordTime: time,
