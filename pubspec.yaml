@@ -28,6 +28,9 @@ dependencies:
   path:
   charts_flutter:
   flutter_swiper:
+  shared_preferences:
+  uuid:
+  http:
 
 dev_dependencies:
   flutter_test:

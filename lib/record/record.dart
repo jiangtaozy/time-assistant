@@ -15,6 +15,7 @@ import '../colors.dart';
 import 'time-record-item/time-record-item-time-picker.dart';
 import 'time-record-item/time-record-item-category-dropdown-menu.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'user-record-times.dart';
 
 class Record extends StatefulWidget {
   @override
@@ -164,6 +165,7 @@ class RecordState extends State<Record> {
       scrollTimeRecordListViewToBottom();
     });
     Navigator.of(context).pop();
+    userRecordTimes();
   }
 
   handleTimeCategoryButtonPressed(context, timeCategoryId) async {
