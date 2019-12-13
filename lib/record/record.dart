@@ -165,7 +165,10 @@ class RecordState extends State<Record> {
       scrollTimeRecordListViewToBottom();
     });
     Navigator.of(context).pop();
-    userRecordTimes();
+    final now = DateTime.now();
+    if(now.year == recordTime.year && now.month == recordTime.month && now.day == recordTime.day) {
+      userRecordTimes();
+    }
   }
 
   handleTimeCategoryButtonPressed(context, timeCategoryId) async {
