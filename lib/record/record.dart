@@ -78,7 +78,7 @@ class RecordState extends State<Record> {
   }
 
   setRefreshRecordEveryMinuteTimer() {
-    refreshRecordEveryMinuteTimer = Timer(Duration(minutes: 1), () {
+    refreshRecordEveryMinuteTimer = Timer.periodic(Duration(minutes: 1), (timer) {
       getTimeRecord();
     });
   }
