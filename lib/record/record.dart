@@ -16,6 +16,7 @@ import 'time-record-item/time-record-item-time-picker.dart';
 import 'time-record-item/time-record-item-category-dropdown-menu.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'user-record-times.dart';
+import 'share-button.dart';
 
 class Record extends StatefulWidget {
   @override
@@ -287,7 +288,7 @@ class RecordState extends State<Record> {
     return Column(
       children: <Widget>[
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(left: 10),
@@ -305,6 +306,14 @@ class RecordState extends State<Record> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(right: 10),
+              child: ShareButton(
+                timeRecord: timeRecord,
+                timeCategory: timeCategory,
+                lastDayTimeRecord: lastDayTimeRecord,
               ),
             ),
           ],
