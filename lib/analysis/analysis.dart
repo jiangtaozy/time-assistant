@@ -265,6 +265,14 @@ class AnalysisState extends State<Analysis> {
                     changedListener: onSelectionChanged,
                   ),
                 ],
+                domainAxis: charts.DateTimeAxisSpec(
+                  tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                    day: charts.TimeFormatterSpec(
+                      format: 'd',
+                      transitionFormat: 'MM-dd',
+                    ),
+                  ),
+                ),
               ),
             ),
             Container(
@@ -297,6 +305,14 @@ class AnalysisState extends State<Analysis> {
               innerPadding: 18,
             ),
           ],
+          domainAxis: charts.DateTimeAxisSpec(
+            tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+              day: charts.TimeFormatterSpec(
+                format: 'd',
+                transitionFormat: 'MM-dd',
+              ),
+            ),
+          ),
         ),
       ),
     );

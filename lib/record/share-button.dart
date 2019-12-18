@@ -75,7 +75,7 @@ class ShareButtonState extends State<ShareButton> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.only(left: 10),
+                    padding: EdgeInsets.only(left: 20),
                     child: Text('分享到'),
                   ),
                   Container(
