@@ -12,7 +12,7 @@ Future<Database> database() async {
     join(await getDatabasesPath(), 'time_assistant.db'),
     onCreate: onCreate,
     onUpgrade: onUpgrade,
-    version: 2,
+    version: 4,
   );
 }
 
@@ -51,6 +51,18 @@ onCreate(db, version) async {
     ("反省", "0xff4ba946")
     '''
   );
+  await db.execute(
+    '''
+    CREATE TABLE time_plan(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      categoryId INTEGER,
+      startTimeHour INTEGER,
+      startTimeMinute INTEGER,
+      endTimeHour INTEGER,
+      endTimeMinute INTEGER
+    )
+    ''',
+  );
 }
 
 onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -83,4 +95,16 @@ onUpgrade(Database db, int oldVersion, int newVersion) async {
       '''
     );
   }
+  await db.execute(
+    '''
+    CREATE TABLE time_plan(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      categoryId INTEGER,
+      startTimeHour INTEGER,
+      startTimeMinute INTEGER,
+      endTimeHour INTEGER,
+      endTimeMinute INTEGER
+    )
+    ''',
+  );
 }

@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 import 'record/record.dart';
 import 'analysis/analysis.dart';
+import 'plan/plan.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class HomeState extends State<Home> {
   final widgetOptions = [
     Record(),
     Analysis(),
+    Plan(),
   ];
 
   void onItemTapped(int index) {
@@ -43,6 +45,10 @@ class HomeState extends State<Home> {
           BottomNavigationBarItem(
             icon: Icon(Icons.show_chart),
             title: Text('分析'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.access_alarm),
+            title: Text('规划'),
           ),
         ],
         currentIndex: selectedIndex,
