@@ -5,9 +5,13 @@
  */
 
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'record/record.dart';
 import 'analysis/analysis.dart';
 import 'plan/plan.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:sqflite/sqflite.dart';
+import 'db.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -22,6 +26,114 @@ class HomeState extends State<Home> {
     Analysis(),
     Plan(),
   ];
+  Timer timePlanTimer;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    initFlutterLocalNotifications();
+  }
+
+  void initFlutterLocalNotifications() async {
+    var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification:
+        (int id, String title, String body, String payload) async {
+        print('id: $id');
+        print('title: $title');
+        print('body: $body');
+        print('payload: $payload');
+      }
+    );
+    var initializationSettings = InitializationSettings(
+      initializationSettingsAndroid,
+      initializationSettingsIOS,
+    );
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onSelectNotification: (String payload) async {
+        print('payload: $payload');
+      },
+    );
+    timePlanTimer = Timer.periodic(Duration(minutes: 10), (timer) async {
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'channel id', 'channel name', 'channel description',
+        importance: Importance.Max,
+        priority: Priority.High,
+        ticker: 'ticker',
+      );
+      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics,
+        iOSPlatformChannelSpecifics,
+      );
+      final Database db = await database();
+      final timePlan = await db.rawQuery('''
+        SELECT time_plan.*,
+        time_category.name AS categoryName,
+        time_category.color AS categoryColor
+        FROM time_plan
+        LEFT JOIN time_category
+        ON time_plan.categoryId = time_category.id
+        ORDER BY time_plan.startTimeHour ASC
+      ''');
+      final now = TimeOfDay.now();
+      final nowHour = now.hour;
+      final nowMinute = now.minute;
+      final records = await db.rawQuery('''
+        SELECT *
+        FROM time_record
+        ORDER BY datetime(time) DESC
+        LIMIT 1
+      ''');
+      if(records == null || records.length == 0) {
+        return;
+      }
+      final lastRecord = records[0];
+      final lastRecordCategoryId = lastRecord['categoryId'];
+      for(int i = 0; i < timePlan.length; i++) {
+        final plan = timePlan[i];
+        final startTimeHour = plan['startTimeHour'];
+        final startTimeMinute = plan['startTimeMinute'];
+        final endTimeHour = plan['endTimeHour'];
+        final endTimeMinute = plan['endTimeMinute'];
+        final planCategoryId = plan['categoryId'];
+        final planCategoryName = plan['categoryName'];
+        final isStartTimeBeforeEndTime = startTimeHour < endTimeHour || (
+          startTimeHour == endTimeHour && startTimeMinute <= endTimeMinute
+        );
+        final isNowTimeAfterStartTime = nowHour > startTimeHour || (
+          nowHour == startTimeHour && nowMinute >= startTimeMinute
+        );
+        final isNowTimeBeforeEndTime = nowHour < endTimeHour || (
+          nowHour == endTimeHour && nowMinute <= endTimeMinute
+        );
+
+        if((isStartTimeBeforeEndTime &&
+            isNowTimeAfterStartTime &&
+            isNowTimeBeforeEndTime &&
+            lastRecordCategoryId != planCategoryId) || (
+            !isStartTimeBeforeEndTime &&
+            (isNowTimeAfterStartTime || isNowTimeBeforeEndTime) &&
+            lastRecordCategoryId != planCategoryId)) {
+          await flutterLocalNotificationsPlugin.show(
+            1,
+            '该$planCategoryName了',
+            '现在是您规划的$planCategoryName时间',
+            platformChannelSpecifics,
+            payload: 'payload',
+          );
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    timePlanTimer.cancel();
+    super.dispose();
+  }
 
   void onItemTapped(int index) {
     setState(() {

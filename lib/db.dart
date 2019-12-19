@@ -67,34 +67,6 @@ onCreate(db, version) async {
 
 onUpgrade(Database db, int oldVersion, int newVersion) async {
   print('onUpgrade oldVersion: $oldVersion, newVersion: $newVersion');
-  if(oldVersion == 1) {
-    await db.execute(
-      'DROP TABLE time_category'
-    );
-    await db.execute(
-      '''
-      CREATE TABLE time_category(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        color TEXT
-      )
-      ''',
-    );
-    await db.rawInsert(
-      '''
-      INSERT INTO time_category(name, color)
-      VALUES
-      ("睡觉", "0xffef342a"),
-      ("工作", "0xffffd00d"),
-      ("休息", "0xff098ec4"),
-      ("吃饭", "0xfff47a25"),
-      ("通勤", "0xfff7b1bf"),
-      ("运动", "0xffb295c5"),
-      ("看书", "0xff79bce7"),
-      ("反省", "0xff4ba946")
-      '''
-    );
-  }
   await db.execute(
     '''
     CREATE TABLE time_plan(
