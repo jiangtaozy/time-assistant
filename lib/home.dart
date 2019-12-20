@@ -12,6 +12,7 @@ import 'plan/plan.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db.dart';
+import 'setting/setting.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -25,6 +26,7 @@ class HomeState extends State<Home> {
     Record(),
     Analysis(),
     Plan(),
+    Setting(),
   ];
   Timer timePlanTimer;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -161,6 +163,10 @@ class HomeState extends State<Home> {
           BottomNavigationBarItem(
             icon: Icon(Icons.access_alarm),
             title: Text('规划'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            title: Text('设置'),
           ),
         ],
         currentIndex: selectedIndex,
