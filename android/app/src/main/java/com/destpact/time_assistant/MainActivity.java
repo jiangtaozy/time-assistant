@@ -1,4 +1,4 @@
-package com.example.time_assistant;
+package com.destpact.time_assistant;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
