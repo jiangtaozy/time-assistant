@@ -6,11 +6,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'time-picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../db.dart';
 import '../colors.dart';
 import '../record/time-record-item/time-record-item-category-dropdown-menu.dart';
 import 'plan-card.dart';
+import 'time-picker.dart';
 
 
 class Plan extends StatefulWidget {
@@ -33,6 +34,7 @@ class PlanState extends State<Plan> {
     super.initState();
     getTimeCategory();
     getTimePlan();
+    checkNotificationPermission();
   }
 
   void updateSelectedCategoryId(int categoryId) {
@@ -140,6 +142,44 @@ class PlanState extends State<Plan> {
     );
     getTimePlan();
     Navigator.of(context).pop();
+  }
+
+  void checkNotificationPermission() async {
+    var permissionHandler = PermissionHandler();
+    PermissionStatus permissionStatus = await permissionHandler.checkPermissionStatus(
+      PermissionGroup.notification,
+    );
+    if(permissionStatus != PermissionStatus.granted) {
+      var result = await permissionHandler.requestPermissions(
+        [PermissionGroup.notification]
+      );
+      if(result[PermissionGroup.notification] == PermissionStatus.unknown) {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('需要您将通知设置为允许通知'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('取消'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                FlatButton(
+                  child: Text('去设置'),
+                  onPressed: () async {
+                    await PermissionHandler().openAppSettings();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
   }
 
   @override
