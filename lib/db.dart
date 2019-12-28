@@ -67,16 +67,4 @@ onCreate(db, version) async {
 
 onUpgrade(Database db, int oldVersion, int newVersion) async {
   print('onUpgrade oldVersion: $oldVersion, newVersion: $newVersion');
-  await db.execute(
-    '''
-    CREATE TABLE time_plan(
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      categoryId INTEGER,
-      startTimeHour INTEGER,
-      startTimeMinute INTEGER,
-      endTimeHour INTEGER,
-      endTimeMinute INTEGER
-    )
-    ''',
-  );
 }

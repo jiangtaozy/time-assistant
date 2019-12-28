@@ -34,7 +34,6 @@ class PlanState extends State<Plan> {
     super.initState();
     getTimeCategory();
     getTimePlan();
-    checkNotificationPermission();
   }
 
   void updateSelectedCategoryId(int categoryId) {
@@ -74,6 +73,9 @@ class PlanState extends State<Plan> {
       ON time_plan.categoryId = time_category.id
       ORDER BY time_plan.startTimeHour ASC
     ''');
+    if(plan.length > 0) {
+      checkNotificationPermission();
+    }
     setState(() {
       timePlan = plan;
     });

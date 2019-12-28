@@ -12,3 +12,5 @@ const MaOnShanViolet = 0xffc7a7d2;
 const CheKungTempleOrange = 0xfffed7a6;
 
 const YauMaTeiGray = 0xffe5e4e9;
+
+const TsuenWanWestRed = 0xffee1e4f;

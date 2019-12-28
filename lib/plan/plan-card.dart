@@ -114,10 +114,6 @@ class PlanCardState extends State<PlanCard> {
   void onPlanDialogSubmitButtonPressed() async {
     final plan = widget.plan;
     final planId = plan['id'];
-    print('plan: $plan');
-    print('selectedCategoryId: $selectedCategoryId');
-    print('startTime: $startTime');
-    print('endTime: $endTime');
     final db = await database();
     await db.update(
       'time_plan',

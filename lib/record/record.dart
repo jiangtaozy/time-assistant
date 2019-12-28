@@ -311,6 +311,7 @@ class RecordState extends State<Record> {
             Container(
               margin: EdgeInsets.only(right: 10),
               child: ShareButton(
+                selectedDate: selectedDate,
                 timeRecord: timeRecord,
                 timeCategory: timeCategory,
                 lastDayTimeRecord: lastDayTimeRecord,

@@ -12,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'version.dart';
 
 class Setting extends StatefulWidget {
 
@@ -110,6 +111,7 @@ class SettingState extends State<Setting> {
             child: ListTile(
               leading: Icon(Icons.sd_card),
               title: Text('导出数据'),
+              trailing: Icon(Icons.chevron_right),
             ),
           ),
         ),
@@ -119,9 +121,11 @@ class SettingState extends State<Setting> {
             child: ListTile(
               leading: Icon(Icons.folder_open),
               title: Text('导入数据'),
+              trailing: Icon(Icons.chevron_right),
             ),
           ),
         ),
+        Version(),
       ],
     );
   }

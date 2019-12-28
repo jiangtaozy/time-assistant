@@ -12,6 +12,9 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 import 'time-record-pie-chart.dart';
 import '../custom-simple-dialog.dart';
 import '../config.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ShareButton extends StatefulWidget {
 
@@ -20,11 +23,13 @@ class ShareButton extends StatefulWidget {
     this.timeRecord,
     this.timeCategory,
     this.lastDayTimeRecord,
+    this.selectedDate,
   }) : super(key: key);
 
   var timeRecord;
   var timeCategory;
   var lastDayTimeRecord;
+  var selectedDate;
 
   @override
   ShareButtonState createState() => ShareButtonState();
@@ -48,9 +53,45 @@ class ShareButtonState extends State<ShareButton> {
     await fluwx.isWeChatInstalled();
   }
 
+  getServiceVersionUrl() async {
+    final query = r'''
+      query {
+        version {
+          versionUrl
+        }
+      }
+    ''';
+    final data = {
+      'query': query,
+    };
+    final body = json.encode(data);
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
+      );
+      if(response.statusCode == 200) {
+        final body = json.decode(response.body);
+        final data = body['data'];
+        final version = data['version'];
+        final versionUrl = version['versionUrl'];
+        return versionUrl;
+      }
+    }
+    catch(error) {
+      print('ShareButtonGetServiceVersionError: $error');
+    }
+  }
+
   void onShareIconPressed(fluwx.WeChatScene scene) async {
     RenderRepaintBoundary boundary = repaintBoundaryGlobalKey.currentContext.findRenderObject();
-    ui.Image image = await boundary.toImage();
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    ui.Image image = await boundary.toImage(
+      pixelRatio: devicePixelRatio,
+    );
     ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List uint8List = byteData.buffer.asUint8List();
     fluwx.share(fluwx.WeChatShareImageModel.fromUint8List(
@@ -60,9 +101,12 @@ class ShareButtonState extends State<ShareButton> {
     Navigator.of(context).pop();
   }
 
-  void onShareButtonPressed() {
+  void onShareButtonPressed() async {
+    final serviceVersionUrl = await getServiceVersionUrl();
+    final selectedDate = widget.selectedDate;
+    final selectedDateString = '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}';
     showDialog(
-      barrierDismissible: true,
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Container(
@@ -89,20 +133,71 @@ class ShareButtonState extends State<ShareButton> {
                   ),
                 ],
               ),
-              RepaintBoundary(
-                key: repaintBoundaryGlobalKey,
-                child: Container(
-                  color: Colors.white,
-                  padding: EdgeInsets.only(
-                    bottom: 20,
-                  ),
-                  child: SizedBox(
-                    height: 240,
-                    width: 400,
-                    child: TimeRecordPieChart(
-                      timeRecord: widget.timeRecord,
-                      timeCategory: widget.timeCategory,
-                      lastDayTimeRecord: widget.lastDayTimeRecord,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: RepaintBoundary(
+                  key: repaintBoundaryGlobalKey,
+                  child: Container(
+                    color: Colors.white,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          width: 385,
+                          padding: EdgeInsets.only(
+                            top: 20.0,
+                            left: 10.0,
+                            bottom: 20.0,
+                          ),
+                          child: Text(
+                            selectedDateString,
+                            style: TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(
+                            left: 5.0,
+                          ),
+                          child: SizedBox(
+                            height: 240,
+                            width: 385,
+                            child: TimeRecordPieChart(
+                              timeRecord: widget.timeRecord,
+                              timeCategory: widget.timeCategory,
+                              lastDayTimeRecord: widget.lastDayTimeRecord,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 390,
+                          child: Align(
+                            alignment: Alignment.bottomRight,
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: QrImage(
+                                    data: serviceVersionUrl ?? '',
+                                    version: QrVersions.auto,
+                                    padding: EdgeInsets.all(0),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: Text(
+                                    '小福时间助手',
+                                    style: TextStyle(
+                                      fontSize: 8,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
