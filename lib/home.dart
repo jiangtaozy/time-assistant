@@ -13,6 +13,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db.dart';
 import 'setting/setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -111,14 +112,16 @@ class HomeState extends State<Home> {
         final isNowTimeBeforeEndTime = nowHour < endTimeHour || (
           nowHour == endTimeHour && nowMinute <= endTimeMinute
         );
-
+        final isNoRemind = await isTodayNoRemind();
         if((isStartTimeBeforeEndTime &&
             isNowTimeAfterStartTime &&
             isNowTimeBeforeEndTime &&
-            lastRecordCategoryId != planCategoryId) || (
+            lastRecordCategoryId != planCategoryId &&
+            !isNoRemind) || (
             !isStartTimeBeforeEndTime &&
             (isNowTimeAfterStartTime || isNowTimeBeforeEndTime) &&
-            lastRecordCategoryId != planCategoryId)) {
+            lastRecordCategoryId != planCategoryId &&
+            !isNoRemind)) {
           await flutterLocalNotificationsPlugin.show(
             1,
             '该$planCategoryName了',
@@ -129,6 +132,20 @@ class HomeState extends State<Home> {
         }
       }
     });
+  }
+
+  Future<bool> isTodayNoRemind() async {
+    bool todayNoRemind = false;
+    final prefs = await SharedPreferences.getInstance();
+    String todayNoRemindDate = prefs.getString('todayNoRemindDate');
+    if(todayNoRemindDate != null) {
+      DateTime date = DateTime.parse(todayNoRemindDate);
+      DateTime now = DateTime.now();
+      if(now.year == date.year && now.month == date.month && now.day == date.day) {
+          todayNoRemind = true;
+      }
+    }
+    return todayNoRemind;
   }
 
   @override

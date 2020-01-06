@@ -12,7 +12,7 @@ import '../colors.dart';
 import '../record/time-record-item/time-record-item-category-dropdown-menu.dart';
 import 'plan-card.dart';
 import 'time-picker.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Plan extends StatefulWidget {
 
@@ -28,12 +28,41 @@ class PlanState extends State<Plan> {
   var selectedCategoryId;
   var startTime;
   var endTime;
+  bool todayNoRemind = false;
+  SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
     getTimeCategory();
     getTimePlan();
+    getTodayNoRemindDate();
+  }
+
+  void getTodayNoRemindDate() async {
+    prefs = await SharedPreferences.getInstance();
+    String todayNoRemindDate = prefs.getString('todayNoRemindDate');
+    if(todayNoRemindDate != null) {
+      DateTime date = DateTime.parse(todayNoRemindDate);
+      DateTime now = DateTime.now();
+      if(now.year == date.year && now.month == date.month && now.day == date.day) {
+        setState(() {
+          todayNoRemind = true;
+        });
+      }
+    }
+  }
+
+  void onTodayNoRemindSwitch(bool value) {
+    if(value) {
+      DateTime now = DateTime.now();
+      prefs.setString('todayNoRemindDate', now.toIso8601String());
+    } else {
+      prefs.remove('todayNoRemindDate');
+    }
+    setState(() {
+      todayNoRemind = value;
+    });
   }
 
   void updateSelectedCategoryId(int categoryId) {
@@ -198,7 +227,24 @@ class PlanState extends State<Plan> {
         children: <Widget>[
           Expanded(
             child: ListView(
-              children: planWidgetList,
+              children: [
+                ...planWidgetList,
+                planWidgetList.length == 0 ? Container() : Card(
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('今日不再提醒'),
+                        Switch(
+                          value: todayNoRemind,
+                          onChanged: onTodayNoRemindSwitch,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
