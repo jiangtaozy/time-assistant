@@ -97,10 +97,15 @@ class AnalysisState extends State<Analysis> {
             'duration': duration,
             'categoryId': lastRecord['categoryId'],
           });
-          final nextDuration = time.difference(nextDay);
+          final today = DateTime(
+            time.year,
+            time.month,
+            time.day,
+          );
+          final todayDuration = time.difference(today);
           timeRecordDuration.add({
-            'time': nextDay,
-            'duration': nextDuration,
+            'time': today,
+            'duration': todayDuration,
             'categoryId': lastRecord['categoryId'],
           });
         }
@@ -217,9 +222,13 @@ class AnalysisState extends State<Analysis> {
     final selectedDatum = model.selectedDatum;
     if(selectedDatum.isNotEmpty) {
       final categoryId = selectedDatum.first.series.id;
+      final dayTime = selectedDatum.first.datum['dayTime'];
       final duration = selectedDatum.first.datum['duration'];
       setState(() {
-        selectedDuration[int.parse(categoryId)] = duration;
+        selectedDuration[int.parse(categoryId)] = {
+          'duration': duration,
+          'dayTime': dayTime,
+        };
       });
     }
   }
@@ -227,12 +236,19 @@ class AnalysisState extends State<Analysis> {
   @override
   Widget build(BuildContext context) {
     final seriesChartList = seriesList.map((seriesList) {
-      final selectedTimeDuration = selectedDuration[seriesList['categoryId']];
+      final selectedTimeNode = selectedDuration[seriesList['categoryId']];
       var selectedTimeDurationString = '';
-      if(selectedTimeDuration != null) {
+      var selectedTimeDate = '';
+      if(selectedTimeNode != null) {
+        final selectedDayTime = selectedTimeNode['dayTime'];
+        final selectedTimeDuration = selectedTimeNode['duration'];
+        final year = selectedDayTime.year;
+        final month = selectedDayTime.month;
+        final day = selectedDayTime.day;
         final hours = selectedTimeDuration.inHours;
         final minutes = (selectedTimeDuration.inMinutes % 60).toString().padLeft(2, '0');
         selectedTimeDurationString = '$hours:$minutes';
+        selectedTimeDate = '$year.$month.$day';
       }
       return SizedBox(
         height: 240,
@@ -277,7 +293,14 @@ class AnalysisState extends State<Analysis> {
             ),
             Container(
               margin: EdgeInsets.only(top: 25),
-              child: Text(selectedTimeDurationString),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Text(''),
+                  Text(selectedTimeDurationString),
+                  Text(selectedTimeDate),
+                ],
+              ),
             ),
           ],
         ),

@@ -294,6 +294,7 @@ class RecordState extends State<Record> {
       7: '星期日',
     };
     final weekday = weekdayMap[selectedDate.weekday];
+    final selectedDateString = '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}';
     return Column(
       children: <Widget>[
         Row(
@@ -312,6 +313,17 @@ class RecordState extends State<Record> {
                   children: <Widget>[
                     Container(
                       child: Text(weekday),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(
+                        left: 10,
+                      ),
+                      child: Text(
+                        selectedDateString,
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
                   ],
                 ),
