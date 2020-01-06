@@ -284,14 +284,25 @@ class RecordState extends State<Record> {
         child: Text(category['name']),
       );
     }).toList();
-    final selectedDateString = '${selectedDate.month}.${selectedDate.day}';
+    final weekdayMap = {
+      1: '星期一',
+      2: '星期二',
+      3: '星期三',
+      4: '星期四',
+      5: '星期五',
+      6: '星期六',
+      7: '星期日',
+    };
+    final weekday = weekdayMap[selectedDate.weekday];
     return Column(
       children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(left: 10),
+              margin: EdgeInsets.only(
+                left: 10,
+              ),
               child: RaisedButton(
                 color: Color(YauMaTeiGray),
                 onPressed: () {
@@ -299,10 +310,8 @@ class RecordState extends State<Record> {
                 },
                 child: Row(
                   children: <Widget>[
-                    Icon(Icons.date_range),
                     Container(
-                      margin: EdgeInsets.only(left: 5),
-                      child: Text(selectedDateString),
+                      child: Text(weekday),
                     ),
                   ],
                 ),

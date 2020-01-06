@@ -104,7 +104,17 @@ class ShareButtonState extends State<ShareButton> {
   void onShareButtonPressed() async {
     final serviceVersionUrl = await getServiceVersionUrl();
     final selectedDate = widget.selectedDate;
-    final selectedDateString = '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}';
+    final weekdayMap = {
+      1: '星期一',
+      2: '星期二',
+      3: '星期三',
+      4: '星期四',
+      5: '星期五',
+      6: '星期六',
+      7: '星期日',
+    };
+    final weekday = weekdayMap[selectedDate.weekday];
+    final selectedDateString = '${selectedDate.year}.${selectedDate.month}.${selectedDate.day} ${weekday}';
     showDialog(
       barrierDismissible: false,
       context: context,
