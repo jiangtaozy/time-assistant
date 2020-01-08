@@ -100,7 +100,7 @@ class PlanState extends State<Plan> {
       FROM time_plan
       LEFT JOIN time_category
       ON time_plan.categoryId = time_category.id
-      ORDER BY time_plan.startTimeHour ASC
+      ORDER BY time_plan.startTimeHour, time_plan.startTimeMinute ASC
     ''');
     if(plan.length > 0) {
       checkNotificationPermission();

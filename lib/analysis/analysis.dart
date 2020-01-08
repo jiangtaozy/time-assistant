@@ -20,6 +20,8 @@ class AnalysisState extends State<Analysis> {
   var selectedDuration = {};
   var seriesList = [];
   var multiLineSeriesList = [];
+  var weekSeriesList = [];
+  var weekMultiLineSeriesList = [];
 
   @override
   void initState() {
@@ -32,9 +34,14 @@ class AnalysisState extends State<Analysis> {
     final timeCategoryDuration = getTimeCategoryDuration(records);
     final series = getSeriesList(timeCategoryDuration);
     final List<charts.Series<dynamic, DateTime>> multiLineSeries = getMultiLineSeriesList(timeCategoryDuration);
+    final weekTimeCategoryDuration = getWeekTimeCategoryDuration(timeCategoryDuration);
+    final weekSeries = getWeekSeriesList(weekTimeCategoryDuration);
+    final List<charts.Series<dynamic, DateTime>> weekMultiLineSeries = getWeekMultiLineSeriesList(weekTimeCategoryDuration);
     setState(() {
       seriesList = series;
       multiLineSeriesList = multiLineSeries;
+      weekSeriesList = weekSeries;
+      weekMultiLineSeriesList = weekMultiLineSeries;
     });
   }
 
@@ -177,9 +184,10 @@ class AnalysisState extends State<Analysis> {
 
   getSeriesList(timeCategoryDuration) {
     final seriesList = timeCategoryDuration.map((categoryDuration) {
+      final chartKey = "day-${categoryDuration['categoryId']}";
       final series = [
         charts.Series<dynamic, DateTime>(
-          id: categoryDuration['categoryId'].toString(),
+          id: chartKey,
           colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
           domainFn: (record, _) => record['dayTime'],
           measureFn: (record, _) {
@@ -193,11 +201,85 @@ class AnalysisState extends State<Analysis> {
       ];
       return {
         'series': series,
-        'categoryId': categoryDuration['categoryId'],
+        'chartKey': chartKey,
         'categoryName': categoryDuration['categoryName'],
       };
     }).toList();
     return seriesList;
+  }
+
+  getWeekTimeCategoryDuration(timeCategoryDuration) {
+    final weekTimeCategoryDuration = timeCategoryDuration.map((categoryDuration) {
+      final durationList = categoryDuration['durationList'];
+      var weekDurationList = [];
+      for(int j = 0; j < durationList.length; j++) {
+        final durationData = durationList[j];
+        final dayTime = durationData['dayTime'];
+        final duration = durationData['duration'];
+        final weekTime = dayTime.add(
+          Duration(
+            days: -(dayTime.weekday - 1),
+          ),
+        );
+        bool hasInList = false;
+        for(int k = 0; k < weekDurationList.length; k++) {
+          final weekDuration = weekDurationList[k];
+          final listWeekTime = weekDuration['weekTime'];
+          if(weekTime.year == listWeekTime.year &&
+            weekTime.month == listWeekTime.month &&
+            weekTime.day == listWeekTime.day) {
+            weekDuration['durationList'].add(duration);
+            weekDuration['totalDuration'] += duration;
+            hasInList = true;
+            break;
+          }
+        }
+        if(!hasInList) {
+          weekDurationList.add({
+            'weekTime': weekTime,
+            'durationList': [duration],
+            'totalDuration': duration,
+          });
+        }
+      }
+      for(int l = 0; l < weekDurationList.length; l++) {
+        final weekDuration = weekDurationList[l];
+        weekDurationList[l]['averageDuration'] = weekDuration['totalDuration'] ~/ 7;
+      }
+      return {
+        'categoryId': categoryDuration['categoryId'],
+        'categoryName': categoryDuration['categoryName'],
+        'color': categoryDuration['color'],
+        'durationList': weekDurationList,
+      };
+    }).toList();
+    return weekTimeCategoryDuration;
+  }
+
+  getWeekSeriesList(weekTimeCategoryDuration) {
+    final weekSeriesList = weekTimeCategoryDuration.map((categoryDuration) {
+      final chartKey = "week-${categoryDuration['categoryId']}";
+      final series = [
+        charts.Series<dynamic, DateTime>(
+          id: chartKey,
+          colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
+          domainFn: (record, _) => record['weekTime'],
+          measureFn: (record, _) {
+            final hours = record['averageDuration'].inHours;
+            final minutes = record['averageDuration'].inMinutes % 60;
+            final duration = hours + minutes / 60;
+            return duration;
+          },
+          data: categoryDuration['durationList'],
+        ),
+      ];
+      return {
+        'series': series,
+        'chartKey': chartKey,
+        'categoryName': categoryDuration['categoryName'],
+      };
+    }).toList();
+    return weekSeriesList;
   }
 
   getMultiLineSeriesList(timeCategoryDuration) {
@@ -218,14 +300,34 @@ class AnalysisState extends State<Analysis> {
     return multiLineSeriesList;
   }
 
+  getWeekMultiLineSeriesList(timeCategoryDuration) {
+    List<charts.Series<dynamic, DateTime>> multiLineSeriesList = timeCategoryDuration.map((categoryDuration) {
+      return charts.Series<dynamic, DateTime>(
+        id: categoryDuration['categoryName'].toString(),
+        colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
+        domainFn: (record, _) => record['weekTime'],
+        measureFn: (record, _) {
+          final hours = record['averageDuration'].inHours;
+          final minutes = record['averageDuration'].inMinutes % 60;
+          final duration = hours + minutes / 60;
+          return duration;
+        },
+        data: categoryDuration['durationList'],
+      );
+    }).toList().cast<charts.Series<dynamic, DateTime>>();
+    return multiLineSeriesList;
+  }
+
   onSelectionChanged(charts.SelectionModel model) {
     final selectedDatum = model.selectedDatum;
     if(selectedDatum.isNotEmpty) {
-      final categoryId = selectedDatum.first.series.id;
-      final dayTime = selectedDatum.first.datum['dayTime'];
-      final duration = selectedDatum.first.datum['duration'];
+      final series = selectedDatum.first.series;
+      final datum = selectedDatum.first.datum;
+      final chartKey = selectedDatum.first.series.id;
+      final dayTime = datum['dayTime'] ?? datum['weekTime'];
+      final duration = datum['duration'] ?? datum['averageDuration'];
       setState(() {
-        selectedDuration[int.parse(categoryId)] = {
+        selectedDuration[chartKey] = {
           'duration': duration,
           'dayTime': dayTime,
         };
@@ -233,10 +335,9 @@ class AnalysisState extends State<Analysis> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final seriesChartList = seriesList.map((seriesList) {
-      final selectedTimeNode = selectedDuration[seriesList['categoryId']];
+  getSeriesChartList(seriesList) {
+    return seriesList.map((series) {
+      final selectedTimeNode = selectedDuration[series['chartKey']];
       var selectedTimeDurationString = '';
       var selectedTimeDate = '';
       if(selectedTimeNode != null) {
@@ -265,11 +366,11 @@ class AnalysisState extends State<Analysis> {
                 ),
               ),
               child: charts.TimeSeriesChart(
-                seriesList['series'],
+                series['series'],
                 animate: true,
                 behaviors: [
                   charts.ChartTitle(
-                    seriesList['categoryName'],
+                    series['categoryName'],
                     behaviorPosition: charts.BehaviorPosition.top,
                     titleOutsideJustification: charts.OutsideJustification.start,
                     innerPadding: 18,
@@ -306,6 +407,9 @@ class AnalysisState extends State<Analysis> {
         ),
       );
     }).toList();
+  }
+
+  getMultiLineSeriesChart(multiLineSeriesList) {
     Widget multiLineSeriesChart = SizedBox(
       height: 240,
       child: Container(
@@ -339,9 +443,45 @@ class AnalysisState extends State<Analysis> {
         ),
       ),
     );
-    seriesChartList.insert(0, multiLineSeriesChart);
+    return multiLineSeriesChart;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final seriesChartList = getSeriesChartList(seriesList);
+    final weekSeriesChartList = getSeriesChartList(weekSeriesList);
+    Widget multiLineSeriesChart = getMultiLineSeriesChart(multiLineSeriesList);
+    Widget weekMultiLineSeriesChart = getMultiLineSeriesChart(weekMultiLineSeriesList);
     return ListView(
-      children: seriesChartList,
+      children: [
+        Container(
+          padding: EdgeInsets.only(
+            top: 15,
+          ),
+          child: Center(
+            child: Text(
+              '每天',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          )
+        ),
+        multiLineSeriesChart,
+        ...seriesChartList,
+        Container(
+          child: Center(
+            child: Text(
+              '每周',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          )
+        ),
+        weekMultiLineSeriesChart,
+        ...weekSeriesChartList,
+      ],
     );
   }
 }
