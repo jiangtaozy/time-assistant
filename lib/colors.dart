@@ -6,6 +6,7 @@
 
 const AdmiraltyBlue = 0xff4dc7ec;
 const UniversityBlue = 0xffb7e1fa;
+const TaiWaiBlue = 0xff0376c2;
 
 const MaOnShanViolet = 0xffc7a7d2;
 
