@@ -46,7 +46,9 @@ class AnalysisState extends State<Analysis> {
             AnalysisChart(
               type: 'week',
             ),
-            Icon(Icons.directions_bike),
+            AnalysisChart(
+              type: 'month',
+            ),
           ],
         ),
       ),

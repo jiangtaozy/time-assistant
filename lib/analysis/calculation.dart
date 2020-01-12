@@ -4,6 +4,8 @@
  * Calculation
  */
 
+import 'package:quiver/time.dart';
+
 getTimeCategoryDuration(timeRecord, timeCategory) {
   var now = DateTime.now();
   var timeRecordDuration = [];
@@ -158,11 +160,17 @@ getWeekTimeCategoryDuration(timeCategoryDuration) {
       }
     }
     final finalDurationList = [];
+    final now = DateTime.now();
     for(int l = 0; l < weekDurationList.length; l++) {
       final weekDuration = weekDurationList[l];
+      final weekTime = weekDuration['weekTime'];
+      int days = 7;
+      if(now.difference(weekTime).inDays < 7) {
+        days = now.weekday;
+      }
       finalDurationList.add({
         'dayTime': weekDuration['weekTime'],
-        'duration': weekDuration['totalDuration'] ~/ 7,
+        'duration': weekDuration['totalDuration'] ~/ days,
       });
     }
     return {
@@ -173,4 +181,64 @@ getWeekTimeCategoryDuration(timeCategoryDuration) {
     };
   }).toList();
   return weekTimeCategoryDuration;
+}
+
+getMonthTimeCategoryDuration(timeCategoryDuration) {
+  final monthTimeCategoryDuration = timeCategoryDuration.map((categoryDuration) {
+    final durationList = categoryDuration['durationList'];
+    var monthDurationList = [];
+    for(int j = 0; j < durationList.length; j++) {
+      final durationData = durationList[j];
+      final dayTime = durationData['dayTime'];
+      final duration = durationData['duration'];
+      final monthTime = dayTime.add(
+        Duration(
+          days: -(dayTime.day - 1),
+        ),
+      );
+      bool hasInList = false;
+      for(int k = 0; k < monthDurationList.length; k++) {
+        final monthDuration = monthDurationList[k];
+        final listMonthTime = monthDuration['monthTime'];
+        if(monthTime.year == listMonthTime.year &&
+          monthTime.month == listMonthTime.month &&
+          monthTime.day == listMonthTime.day) {
+          monthDuration['totalDuration'] += duration;
+          hasInList = true;
+          break;
+        }
+      }
+      if(!hasInList) {
+        monthDurationList.add({
+          'monthTime': monthTime,
+          'totalDuration': duration,
+        });
+      }
+    }
+    final finalDurationList = [];
+    final now = DateTime.now();
+    for(int l = 0; l < monthDurationList.length; l++) {
+      final monthDuration = monthDurationList[l];
+      final monthTime = monthDuration['monthTime'];
+      int days = daysInMonth(
+        monthTime.year,
+        monthTime.month,
+      );
+      if(now.year == monthTime.year &&
+        now.month == monthTime.month) {
+        days = now.day;
+      }
+      finalDurationList.add({
+        'dayTime': monthDuration['monthTime'],
+        'duration': monthDuration['totalDuration'] ~/ days,
+      });
+    }
+    return {
+      'categoryId': categoryDuration['categoryId'],
+      'categoryName': categoryDuration['categoryName'],
+      'color': categoryDuration['color'],
+      'durationList': finalDurationList,
+    };
+  }).toList();
+  return monthTimeCategoryDuration;
 }

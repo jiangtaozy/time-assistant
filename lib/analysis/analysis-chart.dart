@@ -44,6 +44,9 @@ class AnalysisChartState extends State<AnalysisChart> {
     if(widget.type == 'week') {
       categoryDuration = getWeekTimeCategoryDuration(categoryDuration);
     }
+    if(widget.type == 'month') {
+      categoryDuration = getMonthTimeCategoryDuration(categoryDuration);
+    }
     if(mounted) {
       setState(() {
         timeCategoryDuration = categoryDuration;
