@@ -122,6 +122,48 @@ getTimeCategoryDuration(timeRecord, timeCategory) {
       }
     }
   }
+  // 增加零数据
+  for(var i = 0; i < timeCategoryDuration.length; i++) {
+    final categoryDuration = timeCategoryDuration[i];
+    final durationList = categoryDuration['durationList'];
+    final newDurationList = [];
+    for(var j = 0; j < durationList.length; j++) {
+      final durationListData = durationList[j];
+      final time = durationListData['dayTime'];
+      newDurationList.add(durationListData);
+      if(j < durationList.length - 1) {
+        final nextData = durationList[j + 1];
+        final nextTime = nextData['dayTime'];
+        final differenceDuration = nextTime.difference(time);
+        final differenceInDays = differenceDuration.inDays;
+        if(differenceInDays > 1) {
+          for(var k = 0; k < differenceInDays - 1; k++) {
+            newDurationList.add({
+              'dayTime': time.add(
+                Duration(days: (k + 1)),
+              ),
+              'duration': Duration(),
+            });
+          }
+        }
+      } else {
+        final now = DateTime.now();
+        final differenceDuration = now.difference(time);
+        final differenceInDays = differenceDuration.inDays;
+        if(differenceInDays > 0) {
+          for(var l = 0; l < differenceInDays; l++) {
+            newDurationList.add({
+              'dayTime': time.add(
+                Duration(days: (l + 1)),
+              ),
+              'duration': Duration(),
+            });
+          }
+        }
+      }
+    }
+    categoryDuration['durationList'] = newDurationList;
+  }
   return timeCategoryDuration;
 }
 
