@@ -146,6 +146,10 @@ class SingleLineChartState extends State<SingleLineChart> {
                         format: 'd',
                         transitionFormat: 'MM-dd',
                       ),
+                      month: charts.TimeFormatterSpec(
+                        format: 'MM',
+                        transitionFormat: 'yy-MM',
+                      ),
                     ),
                   ),
                 ),

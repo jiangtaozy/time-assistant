@@ -11,6 +11,7 @@ import '../db.dart';
 import 'calculation.dart';
 import 'multi-line-chart.dart';
 import 'single-line-chart.dart';
+import 'pie-chart.dart';
 
 class AnalysisChart extends StatefulWidget {
 
@@ -78,6 +79,9 @@ class AnalysisChartState extends State<AnalysisChart> {
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
+        PieChart(
+          timeCategoryDuration: timeCategoryDuration,
+        ),
         MultiLineChart(
           timeCategoryDuration: timeCategoryDuration,
         ),

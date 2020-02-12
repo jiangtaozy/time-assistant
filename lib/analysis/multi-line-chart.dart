@@ -72,6 +72,10 @@ class MultiLineChartState extends State<MultiLineChart> {
                 format: 'd',
                 transitionFormat: 'MM-dd',
               ),
+              month: charts.TimeFormatterSpec(
+                format: 'MM',
+                transitionFormat: 'yy-MM',
+              ),
             ),
           ),
         ),
