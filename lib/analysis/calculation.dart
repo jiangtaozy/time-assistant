@@ -164,6 +164,37 @@ getTimeCategoryDuration(timeRecord, timeCategory) {
     }
     categoryDuration['durationList'] = newDurationList;
   }
+  // 插入零数据
+  var firstTime = DateTime.now();
+  for(var i = 0; i < timeCategoryDuration.length; i++) {
+    final categoryDuration = timeCategoryDuration[i];
+    final durationList = categoryDuration['durationList'];
+    if(durationList.length > 0) {
+      final dayTime = durationList[0]['dayTime'];
+      if(dayTime.isBefore(firstTime)) {
+        firstTime = dayTime;
+      }
+    }
+  }
+  for(var i = 0; i < timeCategoryDuration.length; i++) {
+    final categoryDuration = timeCategoryDuration[i];
+    final durationList = categoryDuration['durationList'];
+    if(durationList.length > 0) {
+      final dayTime = durationList[0]['dayTime'];
+      if(dayTime.isAfter(firstTime)) {
+        final duration = dayTime.difference(firstTime);
+        final days = duration.inDays;
+        for(var j = 0; j < days; j++) {
+          durationList.insert(0, {
+            'dayTime': firstTime.add(
+              Duration(days: j),
+            ),
+            'duration': Duration(),
+          });
+        }
+      }
+    }
+  }
   return timeCategoryDuration;
 }
 
