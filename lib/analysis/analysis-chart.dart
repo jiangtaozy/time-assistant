@@ -43,15 +43,19 @@ class AnalysisChartState extends State<AnalysisChart> {
     await getTimeCategory();
     final records = await getTimeRecord();
     var categoryDuration = getTimeCategoryDuration(records, timeCategory);
+    var day = 1;
     if(widget.type == 'week') {
       categoryDuration = getWeekTimeCategoryDuration(categoryDuration);
+      day = selectedTime.weekday;
     }
     if(widget.type == 'month') {
       categoryDuration = getMonthTimeCategoryDuration(categoryDuration);
+      day = selectedTime.day;
     }
     if(mounted) {
       setState(() {
         timeCategoryDuration = categoryDuration;
+        selectedTime = selectedTime.add(Duration(days: -(day - 1)));
       });
     }
   }

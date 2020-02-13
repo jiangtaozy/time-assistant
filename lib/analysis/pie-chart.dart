@@ -77,24 +77,38 @@ class PieChartState extends State<PieChart> {
         }
       )
     ];
-    return SizedBox(
-      height: 240,
-      child: Container(
-        margin: EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(
-            Radius.circular(10),
+    final selectedTime = widget.selectedTime;
+    final timeString = '${selectedTime.year}.${selectedTime.month}.${selectedTime.day}';
+    return Column(
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.all(10),
+              child: Text(timeString),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 240,
+          child: Container(
+            margin: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(
+                Radius.circular(10),
+              ),
+            ),
+            child: charts.PieChart(seriesList,
+              animate: true,
+              defaultRenderer: new charts.ArcRendererConfig(
+                arcWidth: 60,
+                arcRendererDecorators: [new charts.ArcLabelDecorator()],
+              ),
+            ),
           ),
         ),
-        child: charts.PieChart(seriesList,
-          animate: true,
-          defaultRenderer: new charts.ArcRendererConfig(
-            arcWidth: 60,
-            arcRendererDecorators: [new charts.ArcLabelDecorator()],
-          ),
-        ),
-      ),
+      ],
     );
   }
 }
