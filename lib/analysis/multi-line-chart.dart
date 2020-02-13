@@ -12,9 +12,11 @@ class MultiLineChart extends StatefulWidget {
   MultiLineChart({
     Key key,
     this.timeCategoryDuration,
+    this.onSelectionChanged,
   }) : super(key: key);
 
   var timeCategoryDuration;
+  var onSelectionChanged;
 
   @override
   MultiLineChartState createState() => MultiLineChartState();
@@ -23,8 +25,15 @@ class MultiLineChart extends StatefulWidget {
 
 class MultiLineChartState extends State<MultiLineChart> {
 
-  getMultiLineSeriesList(timeCategoryDuration) {
-    List<charts.Series<dynamic, DateTime>> multiLineSeriesList = timeCategoryDuration.map((categoryDuration) {
+  var multiLineSeriesList;
+
+  @override
+  void initState() {
+    setSeries();
+  }
+
+  void setSeries() {
+    List<charts.Series<dynamic, DateTime>> seriesList = widget.timeCategoryDuration.map((categoryDuration) {
       return charts.Series<dynamic, DateTime>(
         id: categoryDuration['categoryName'].toString(),
         colorFn: (_, __) => charts.ColorUtil.fromDartColor(Color(int.parse(categoryDuration['color']))),
@@ -38,12 +47,20 @@ class MultiLineChartState extends State<MultiLineChart> {
         data: categoryDuration['durationList'],
       );
     }).toList().cast<charts.Series<dynamic, DateTime>>();
-    return multiLineSeriesList;
+    setState(() {
+      multiLineSeriesList = seriesList;
+    });
+  }
+
+  @override
+  void didUpdateWidget(MultiLineChart oldWidget) {
+    if (oldWidget.timeCategoryDuration != widget.timeCategoryDuration) {
+      setSeries();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<charts.Series<dynamic, DateTime>> multiLineSeriesList = getMultiLineSeriesList(widget.timeCategoryDuration);
     return SizedBox(
       height: 240,
       child: Container(
@@ -78,6 +95,12 @@ class MultiLineChartState extends State<MultiLineChart> {
               ),
             ),
           ),
+          selectionModels: [
+            charts.SelectionModelConfig(
+              type: charts.SelectionModelType.info,
+              changedListener: widget.onSelectionChanged,
+            ),
+          ],
         ),
       ),
     );

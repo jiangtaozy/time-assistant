@@ -12,9 +12,11 @@ class PieChart extends StatefulWidget {
   PieChart({
     Key key,
     this.timeCategoryDuration,
+    this.selectedTime,
   }) : super(key: key);
 
   var timeCategoryDuration;
+  var selectedTime;
 
   @override
   PieChartState createState() => PieChartState();
@@ -28,14 +30,21 @@ class PieChartState extends State<PieChart> {
     final categoryDuration = widget.timeCategoryDuration;
     final pieData = [];
     for(var i = 0; i < categoryDuration.length; i++) {
-      final duration = categoryDuration[i];
-      final durationList = duration['durationList'];
+      final durationData = categoryDuration[i];
+      final durationList = durationData['durationList'];
+      var duration = durationList[durationList.length - 1]['duration'];
+      for(var j = 0; j < durationList.length; j++) {
+        if(durationList[j]['dayTime'].compareTo(widget.selectedTime) == 0) {
+          duration = durationList[j]['duration'];
+          break;
+        }
+      }
       pieData.add({
-        'id': duration['categoryId'],
-        'name': duration['categoryName'],
-        'duration': durationList[durationList.length - 1]['duration'],
-        'time': durationList[durationList.length - 1]['duration'].inSeconds,
-        'color': duration['color'],
+        'id': durationData['categoryId'],
+        'name': durationData['categoryName'],
+        'duration': duration,
+        'time': duration.inSeconds,
+        'color': durationData['color'],
       });
     }
     int total = 0;

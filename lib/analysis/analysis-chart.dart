@@ -31,6 +31,7 @@ class AnalysisChartState extends State<AnalysisChart> {
 
   var timeCategoryDuration = [];
   var timeCategory = [];
+  var selectedTime = DateTime.now();
 
   @override
   void initState() {
@@ -75,15 +76,30 @@ class AnalysisChartState extends State<AnalysisChart> {
     return records;
   }
 
+  onSelectionChanged(charts.SelectionModel model) {
+    final selectedDatum = model.selectedDatum;
+    if(selectedDatum.isNotEmpty) {
+      final series = selectedDatum.first.series;
+      final datum = selectedDatum.first.datum;
+      final dayTime = datum['dayTime'];
+      setState(() {
+        selectedTime = dayTime;
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
         PieChart(
           timeCategoryDuration: timeCategoryDuration,
+          selectedTime: selectedTime,
         ),
         MultiLineChart(
           timeCategoryDuration: timeCategoryDuration,
+          onSelectionChanged: onSelectionChanged,
         ),
         SingleLineChart(
           timeCategoryDuration: timeCategoryDuration,
