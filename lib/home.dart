@@ -14,6 +14,7 @@ import 'package:sqflite/sqflite.dart';
 import 'db.dart';
 import 'setting/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'life-time/life-time.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -25,6 +26,7 @@ class HomeState extends State<Home> {
   int selectedIndex = 0;
   final widgetOptions = [
     Record(),
+    LifeTime(),
     Analysis(),
     Plan(),
     Setting(),
@@ -172,6 +174,10 @@ class HomeState extends State<Home> {
           BottomNavigationBarItem(
             icon: Icon(Icons.edit),
             title: Text('记录'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.hourglass_empty),
+            title: Text('生命'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.show_chart),

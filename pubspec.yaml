@@ -39,6 +39,7 @@ dependencies:
   qr_flutter:
   package_info:
   url_launcher:
+  flutter_annual_task:
 
 dev_dependencies:
   flutter_test:
