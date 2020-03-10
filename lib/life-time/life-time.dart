@@ -107,18 +107,40 @@ class LifeTimeState extends State<LifeTime> {
       }
     }
     String birthdayStr = '点击设置';
+    String remainTimeStr = '点击设置';
+    String usedPercentageStr = '点击设置';
     if(birthday != null) {
       birthdayStr = '${birthday.year}.${birthday.month}.${birthday.day}';
+      DateTime deathDate = DateTime(birthday.year + 80, birthday.month, birthday.day);
+      int remainYear = deathDate.year - now.year;
+      int remainMonth = deathDate.month - now.month;
+      int remainDay = deathDate.day - now.day;
+      if(remainMonth < 0) {
+        remainYear -= 1;
+        remainMonth += 12;
+      }
+      if(remainDay < 0) {
+        remainMonth -= 1;
+        remainDay += 30;
+      }
+      remainTimeStr = '${remainYear} 年 ${remainMonth} 月 ${remainDay} 天';
+      Duration wholeTime = deathDate.difference(birthday);
+      Duration usedTime = now.difference(birthday);
+      double percentage = usedTime.inDays / wholeTime.inDays * 100;
+      usedPercentageStr = '${percentage.toStringAsFixed(1)}%';
     }
-    List<Widget> listItems = [
-      ...taskViews,
-      RaisedButton(
-        onPressed: handleDateButtonPressed,
-        child: Text("出生日期：${birthdayStr}"),
-      ),
-    ];
-    return ListView(
-      children: listItems,
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            children: taskViews,
+          ),
+        ),
+        RaisedButton(
+          onPressed: handleDateButtonPressed,
+          child: Text("出生日期: ${birthdayStr}, 全部生命: 80 年, 剩余生命: ${remainTimeStr}, 已使用: ${usedPercentageStr}"),
+        ),
+      ],
     );
   }
 
