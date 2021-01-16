@@ -20,7 +20,7 @@ class AnalysisState extends State<Analysis> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: TabBar(
           labelColor: Color(TaiWaiBlue),
@@ -36,6 +36,9 @@ class AnalysisState extends State<Analysis> {
             Tab(
                 text: '每月',
             ),
+            Tab(
+                text: '每年',
+            ),
           ],
         ),
         body: TabBarView(
@@ -48,6 +51,9 @@ class AnalysisState extends State<Analysis> {
             ),
             AnalysisChart(
               type: 'month',
+            ),
+            AnalysisChart(
+              type: 'year',
             ),
           ],
         ),

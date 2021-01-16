@@ -52,6 +52,10 @@ class AnalysisChartState extends State<AnalysisChart> {
       categoryDuration = getMonthTimeCategoryDuration(categoryDuration);
       day = selectedTime.day;
     }
+    if(widget.type == 'year') {
+      categoryDuration = getYearTimeCategoryDuration(categoryDuration);
+      day = selectedTime.day;
+    }
     if(mounted) {
       setState(() {
         timeCategoryDuration = categoryDuration;

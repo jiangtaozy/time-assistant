@@ -315,3 +315,51 @@ getMonthTimeCategoryDuration(timeCategoryDuration) {
   }).toList();
   return monthTimeCategoryDuration;
 }
+
+getYearTimeCategoryDuration(timeCategoryDuration) {
+  final yearTimeCategoryDuration = timeCategoryDuration.map((categoryDuration) {
+    final durationList = categoryDuration['durationList'];
+    var yearDurationList = [];
+    for(int j = 0; j < durationList.length; j++) {
+      final durationData = durationList[j];
+      final dayTime = durationData['dayTime'];
+      final duration = durationData['duration'];
+      final yearTime = DateTime(dayTime.year);
+      bool hasInList = false;
+      for(int k = 0; k < yearDurationList.length; k++) {
+        final yearDuration = yearDurationList[k];
+        final listYearTime = yearDuration['yearTime'];
+        if(yearTime.year == listYearTime.year) {
+          yearDuration['totalDuration'] += duration;
+          yearDuration['yearDays']++;
+          hasInList = true;
+          break;
+        }
+      }
+      if(!hasInList) {
+        yearDurationList.add({
+          'yearTime': yearTime,
+          'totalDuration': duration,
+          'yearDays': 1,
+        });
+      }
+    }
+    final finalDurationList = [];
+    final now = DateTime.now();
+    for(int l = 0; l < yearDurationList.length; l++) {
+      final yearDuration = yearDurationList[l];
+      final yearTime = yearDuration['yearTime'];
+      finalDurationList.add({
+        'dayTime': yearDuration['yearTime'],
+        'duration': yearDuration['totalDuration'] ~/ yearDuration['yearDays'],
+      });
+    }
+    return {
+      'categoryId': categoryDuration['categoryId'],
+      'categoryName': categoryDuration['categoryName'],
+      'color': categoryDuration['color'],
+      'durationList': finalDurationList,
+    };
+  }).toList();
+  return yearTimeCategoryDuration;
+}
